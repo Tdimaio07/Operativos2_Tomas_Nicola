@@ -6,6 +6,7 @@ package vistas;
 import modelos.ModeloSD;
 import controladores.*;
 import javax.swing.JOptionPane;
+import javax.swing.JTree;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -19,6 +20,16 @@ public class VistaMenu extends javax.swing.JFrame {
      */
     public VistaMenu() {
         initComponents();
+        this.setVisible(true);
+        this.setResizable(false);
+        this.setLocationRelativeTo(null);
+    }
+    public VistaMenu(JTree newjtree) {
+        initComponents();
+        this.jTree1 = newjtree;
+        jScrollPane1.setViewportView(jTree1);
+        DefaultTreeModel modelo = (DefaultTreeModel) jTree1.getModel();
+        modelo.reload();
         this.setVisible(true);
         this.setResizable(false);
         this.setLocationRelativeTo(null);
@@ -38,6 +49,9 @@ public class VistaMenu extends javax.swing.JFrame {
     for (int i = 0; i < modelo.getRowCount(); i++) {
         modelo.removeRow(i);
     }
+    System.out.println(modelo.getRowCount());
+    if(modelo.getRowCount() != 0)
+        modelo.removeRow(0);
 
     NodoList siguienteNodo = controlador.obtenerTabla().getHead();
     while (siguienteNodo != null) {
@@ -89,7 +103,7 @@ public void actualizarArbol(String nombre) {
 
     try {
         if (controlador.esArchivo(this.obtenerRutaComoString(rutaSeleccionada))) {
-            nombre = nombre + ".txt";
+            nombre = nombre + " [A]";
             String nuevaRuta = obtenerRutaComoString(rutaSeleccionada.getParentPath()) + "/" + nombre;
 
             System.out.println("Ruta del nuevo nodo antes de renombrar: " + nuevaRuta);
@@ -158,7 +172,7 @@ public void crearNodoArbol(String nombre, int num) {
                 return;
             }
             if (num > 0) {
-                nombre = nombre + ".txt";
+                nombre = nombre + "[A]";
                 TreePath rutaPadre = new TreePath(nodoSeleccionado.getPath());
                 String nuevaRuta = obtenerRutaComoString(rutaPadre) + "/" + nombre;
 
@@ -175,6 +189,8 @@ public void crearNodoArbol(String nombre, int num) {
     } else {
         JOptionPane.showMessageDialog(this, "No pueden existir 2 archivos iguales");
     }
+    this.actualizarTabla1();
+    this.actualizarTabla2();
 }
 
     /**
@@ -197,6 +213,7 @@ public void crearNodoArbol(String nombre, int num) {
         crear = new javax.swing.JButton();
         editar = new javax.swing.JButton();
         borrar = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
         jComboBox1 = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -250,7 +267,7 @@ public void crearNodoArbol(String nombre, int num) {
 
             },
             new String [] {
-                "Nombre", "Bloques", "Inicio"
+                "Nombre", "Inicio", "Bloques"
             }
         ) {
             Class[] types = new Class [] {
@@ -298,6 +315,17 @@ public void crearNodoArbol(String nombre, int num) {
         });
         jToolBar1.add(borrar);
 
+        jButton1.setText("Guardar");
+        jButton1.setFocusable(false);
+        jButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButton1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(jButton1);
+
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Administrador", "Usuario" }));
         jComboBox1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -306,7 +334,7 @@ public void crearNodoArbol(String nombre, int num) {
         });
         jToolBar1.add(jComboBox1);
 
-        jPanel1.add(jToolBar1, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 20, 260, 30));
+        jPanel1.add(jToolBar1, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 20, 380, 40));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -318,7 +346,7 @@ public void crearNodoArbol(String nombre, int num) {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 385, Short.MAX_VALUE)
         );
 
         pack();
@@ -379,6 +407,12 @@ public void crearNodoArbol(String nombre, int num) {
         }
     }//GEN-LAST:event_jComboBox1ActionPerformed
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        this.controlador.guardarJTree(jTree1);
+        this.controlador.guardarSD();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -418,6 +452,7 @@ public void crearNodoArbol(String nombre, int num) {
     private javax.swing.JButton borrar;
     private javax.swing.JButton crear;
     private javax.swing.JButton editar;
+    private javax.swing.JButton jButton1;
     private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;

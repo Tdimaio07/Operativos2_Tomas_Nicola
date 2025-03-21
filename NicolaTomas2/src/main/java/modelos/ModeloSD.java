@@ -1,4 +1,11 @@
 package modelos;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.lang.ProcessBuilder.Redirect.Type;
 import micelaneos.*;
 
 public class ModeloSD {
@@ -7,13 +14,57 @@ public class ModeloSD {
     Node[] bloques;
     List tabla;
       
-    public ModeloSD(int bloquesLibres, Node[] nodos, List lista) {
+    public ModeloSD(int bloquesLibres, int capacidad, Node[] nodos, List lista) {
         this.bloquesLibres = bloquesLibres;
-        this.capacidad = bloquesLibres;
+        this.capacidad = capacidad;
         bloques = nodos;
         tabla = lista;
     }
+     // Method to save the ModeloSD object as JSON
+        public void saveAsJson(String filename) {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        try (FileWriter writer = new FileWriter(filename)) {
+            ModeloSDTemp temp = new ModeloSDTemp(capacidad, bloquesLibres, bloques, convertListToArray(tabla));
+            gson.toJson(temp, writer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
+    public static ModeloSD readFromJson(String filename) {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        try (FileReader reader = new FileReader(filename)) {
+            java.lang.reflect.Type modeloSDTempType = new TypeToken<ModeloSDTemp>() {}.getType();
+            ModeloSDTemp temp = gson.fromJson(reader, modeloSDTempType);
+            List tabla = convertArrayToList(temp.tabla);
+            return new ModeloSD(temp.bloquesLibres, temp.capacidad, temp.bloques, tabla);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static String[][] convertListToArray(List list) {
+        int size = list.getSize();
+        String[][] array = new String[size][];
+        NodoList current = list.getHead();
+        int index = 0;
+        while (current != null) {
+            array[index] = (String[]) current.getValue();
+            current = current.getpNext();
+            index++;
+        }
+        return array;
+    }
+
+    private static List convertArrayToList(String[][] array) {
+        List list = new List();
+        for (String[] item : array) {
+            list.appendLast(item);
+        }
+        return list;
+    }
+    
     public Node[] obtenerBloques() {
         return bloques;
     }
@@ -41,9 +92,9 @@ public class ModeloSD {
 
     public void crearArchivo(int numeroBloques, String nombreArchivo) throws Exception {
         if(bloquesLibres < numeroBloques) {
-            throw new Exception(ExceptionMessage.notSpace);
+            throw new Exception("no espacio");
         } else if(this.nombreExiste(nombreArchivo)) {
-            throw new Exception(ExceptionMessage.sameName);
+            throw new Exception("es un archivo");
         } else {
             asignarBloques(numeroBloques, nombreArchivo);
         }
@@ -51,7 +102,7 @@ public class ModeloSD {
 
     public void actualizarArchivo(String nombreArchivo, String nuevoNombreArchivo) throws Exception {
         if(this.nombreExiste(nuevoNombreArchivo)) {
-            throw new Exception(ExceptionMessage.sameName);
+            throw new Exception("Ya existe ese archivo");
         }
         NodoList siguienteNodo = tabla.getHead();
         while(siguienteNodo != null) {

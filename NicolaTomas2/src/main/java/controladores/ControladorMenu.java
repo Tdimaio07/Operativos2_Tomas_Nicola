@@ -1,4 +1,6 @@
 package controladores;
+import javax.swing.JTree;
+import micelaneos.JTreeToJson;
 import micelaneos.List;
 import modelos.ModeloSD;
 public class ControladorMenu {
@@ -25,7 +27,7 @@ public class ControladorMenu {
     }
 
     public String[][] obtenerBloques() {
-        String[][] salida = new String[4][10];
+        String[][] salida = new String[10][3];
         int contador = 1;
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 3; j++) {
@@ -42,6 +44,14 @@ public class ControladorMenu {
     }
     public List obtenerTabla(){
         return sistemaDeArchivos.getTabla();
+    }
+    
+    public void guardarSD(){
+        sistemaDeArchivos.saveAsJson("files/sd.json");
+    }
+    
+    public void guardarJTree(JTree jtree){
+        JTreeToJson.saveJTreeToJson("files/jtree.json", jtree);
     }
 }
 
